@@ -1,0 +1,126 @@
+---
+title: "GRAIN"
+author: "Syed Ali"
+date: "2023-03-08"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#install.packages("readxl")
+library(tidyverse)
+library(readxl)
+data <- read_excel("C:/Users/SOFTWARE ENGINEER/Desktop/syed ali/New/GRAIN---Land-grab-deals---Jan-2012-2.xlsx")
+data
+
+```
+Before we start cleaning the data, let's take a quick look at the data structure and see what needs to be cleaned.
+
+We can use the following commands to get a quick overview of the data:
+```{r}
+head(data)
+str(data)
+summary(data)
+
+```
+## Based on the output of head(), str(), and summary() functions, here are some observations and potential issues in the data:
+
+The Hectares variable is of numerical data type, which is good. However, there seems to be a very wide range of values, with the minimum at 200 hectares and the maximum at 3,200,000 hectares. This suggests that there may be outliers in the data that need to be investigated and potentially removed.
+
+The Year variable is also of numerical data type, which is good. However, the minimum value is 0, which is not a valid year. This suggests that there may be missing or incorrect data in this variable.
+
+The Projected investment variable has a lot of missing values (indicated by "NA" in the output). Depending on the analysis, these missing values may need to be handled or imputed in some way.
+
+The Landgrabbed, Landgrabber, Base, Sector, Production, Status of deal, and Summary variables are all of character data type, which is reasonable given their nature as textual descriptions. However, there may be formatting or spelling errors in these variables that need to be checked and potentially corrected.
+
+The Sector variable seems to have multiple values separated by commas in some cases. This may cause issues in data analysis and may need to be addressed, such as by splitting the values into separate variables or categories.
+
+Based on these observations, some potential data cleaning tasks that could be performed include:
+
+Investigating and potentially removing outliers in the Hectares variable.
+
+Checking and correcting any missing or incorrect data in the Year variable.
+
+Handling or imputing missing values in the Projected investment variable, depending on the analysis.
+
+Checking and correcting formatting or spelling errors in the Landgrabbed, Landgrabber, Base, Sector, Production, Status of deal, and Summary variables.
+
+Addressing any issues with the Sector variable that may affect data analysis.
+```{r}
+
+```
+
+## Clean the data
+
+### Convert year to numeric
+```{r}
+data$Year <- as.numeric(data$Year)
+```
+### Remove rows with missing values
+```{r}
+# count missing values
+sum(is.na(data))
+
+# remove rows with missing values
+data <- data %>% 
+  drop_na()
+```
+#### Outliers
+```{r}
+# detect outliers using boxplot
+ggplot(data, aes(y = Hectares)) + 
+  geom_boxplot()
+
+# remove outliers
+data <- data %>% 
+  filter(Hectares <= quantile(Hectares, 0.99))
+```
+### Spelling and formatting errors
+```{r}
+# fix spelling errors in Landgrabber column
+data$Landgrabber <- ifelse(data$Landgrabber == "Adecoagro ", "Adecoagro", data$Landgrabber)
+```
+
+## Save the cleaned data
+```{r}
+write.csv(data, "C:/Users/SOFTWARE ENGINEER/Desktop/syed ali/New/data.csv", row.names = FALSE)
+
+```
+
+```{r}
+head(data)
+str(data)
+summary(data)
+```
+## Visualizations
+```{r}
+library(ggplot2)
+
+# histogram of Hectares
+ggplot(data, aes(x = Hectares)) + 
+  geom_histogram(binwidth = 50000, fill = "steelblue") + 
+  labs(title = "Distribution of Hectares", x = "Hectares", y = "Count")
+```
+```{r}
+# boxplot of Year by Landgrabber
+ggplot(data, aes(x = Landgrabber, y = Year)) + 
+  geom_boxplot(fill = "steelblue") + 
+  coord_flip() + 
+  labs(title = "Year by Landgrabber", x = "Landgrabber", y = "Year")
+```
+
+
+```{r}
+# scatterplot of Hectares vs. Projected investment
+ggplot(data, aes(x = Hectares, y = as.numeric(`Projected investment`))) + 
+  geom_point(color = "steelblue") + 
+  scale_y_continuous(labels = scales::dollar_format(prefix = "$")) + 
+  labs(title = "Hectares vs. Projected Investment", x = "Hectares", y = "Projected Investment")
+
+```
+
