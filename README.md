@@ -1,4 +1,9 @@
 # GRAIN
+data.csv contains cleaned data
+GRAIN.DOCX contains data after kniting
+GRAIN.Rmd is the R markdown code
+GRAIN---Land-grab-deals---Jan-2012-2 is the dataset
+
 ## Based on the output of head(), str(), and summary() functions, here are some observations and potential issues in the data:
 
 The Hectares variable is of numerical data type, which is good. However, there seems to be a very wide range of values, with the minimum at 200 hectares and the maximum at 3,200,000 hectares. This suggests that there may be outliers in the data that need to be investigated and potentially removed.
